@@ -22,14 +22,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build the Docker image
-        run: docker build . --file helix-docker/helix-p4d/Dockerfile --tag my-image-name:$(date +%s)
+        working-directory: helix-p4d
+        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
 
       - name: Save Docker image as an artifact
         run: |
           docker save my-image-name:$(date +%s) -o my-docker-image.tar
         # 保存镜像文件为artifact以便下载
+        working-directory: helix-docker/helix-p4d
       - name: Upload Docker image
         uses: actions/upload-artifact@v3
         with:
           name: my-docker-image
-          path: my-docker-image.tar
+          path: helix-p4d/my-docker-image.tar
