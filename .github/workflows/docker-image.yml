@@ -1,0 +1,35 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Log level"
+        required: true
+        default: "warning"
+      tags:
+        description: "Test scenario tags"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the Docker image
+        run: docker build . --file helix-docker/helix-p4d/Dockerfile --tag my-image-name:$(date +%s)
+
+      - name: Save Docker image as an artifact
+        run: |
+          docker save my-image-name:$(date +%s) -o my-docker-image.tar
+        # 保存镜像文件为artifact以便下载
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-docker-image
+          path: my-docker-image.tar
